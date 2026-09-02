@@ -1,0 +1,11 @@
+Area_Name: state
+Year: year
+Group_Name: crime_group
+Sub_Group_Name: crime_subgroup
+Victims_Above_50_Yrs: victims_above_50
+Victims_Total: victims_total
+Victims_Upto_10_15_Yrs: victims_upto_10_15
+Victims_Upto_10_Yrs: victims_upto_10
+Victims_Upto_15_18_Yrs: victims_upto_15_18
+Victims_Upto_18_30_Yrs: victims_upto_18_30
+Victims_Upto_30_50_Yrs: victims_upto_30_50

@@ -1,0 +1,9 @@
+Area_Name: state
+Year: year
+Group_Name: crime_group
+Sub_Group_Name: crime_subgroup
+Loss_of_Property_1_10_Crores: loss_property_1_10_crores
+Loss_of_Property_10_25_Crores: loss_property_10_25_crores
+Loss_of_Property_25_50_Crores: loss_property_25_50_crores
+Loss_of_Property_50_100_Crores: loss_property_50_100_crores
+Loss_of_Property_Above_100_Crores: loss_property_above_100_crores

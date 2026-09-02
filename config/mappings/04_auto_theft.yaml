@@ -1,0 +1,7 @@
+Area_Name: state
+Year: year
+Group_Name: crime_group
+Sub_Group_Name: crime_subgroup
+Auto_Theft_Coordinated/Traced: auto_theft_coordinated_traced
+Auto_Theft_Recovered: auto_theft_recovered
+Auto_Theft_Stolen: auto_theft_stolen

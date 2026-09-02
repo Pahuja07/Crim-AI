@@ -1,0 +1,11 @@
+Area_Name: state
+Year: year
+Group_Name: crime_group
+Sub_Group_Name: crime_subgroup
+PT_1_3_Years: pt_1_3_years
+PT_3_5_Years: pt_3_5_years
+PT_5_10_Years: pt_5_10_years
+PT_6_12_Months: pt_6_12_months
+PT_Less_than_6_Months: pt_less_than_6_months
+PT_Over_10_Years: pt_over_10_years
+PT_Total: pt_total
