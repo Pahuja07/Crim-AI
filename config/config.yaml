@@ -1,0 +1,47 @@
+artifacts_root: artifacts
+
+data_ingestion:
+  raw_data_dir: data/raw
+  processed_data_dir: data/processed
+
+datasets:
+  property_stolen_and_recovered:
+    raw_path: data/raw/01_property_stolen.csv
+    processed_path: data/processed/01_property_stolen.csv
+    mapping_file: config/mappings/01_property_stolen.yaml
+  
+  victims_of_rape:
+    raw_path: data/raw/02_Victims_of_rape.csv
+    processed_path: data/processed/02_Victims_of_rape.csv
+    mapping_file: config/mappings/02_Victims_of_rape.yaml
+  
+  trail_mapping:
+    raw_path: data/raw/03_trial_mapping.csv
+    processed_path: data/processed/03_trail_mapping.csv
+    mapping_file: config/mappings/03_trial_mapping.yaml
+  
+  auto_theft:
+    raw_path: data/raw/04_auto_theft.csv
+    processed_path: data/processed/04_auto_theft.csv
+    mapping_file: config/mappings/04_auto_theft.yaml
+  
+  serious_fraud:
+    raw_path: data/raw/05_serious_fraus.csv
+    processed_path: data/processed/05_serious_fraud.csv
+    mapping_file: data/mappings/05_serious_fraud.yaml
+
+  murder_victim:
+    raw_path: data/raw/06_murder_victim.csv
+    processed_path: data/processed/06_murder_victim.csv
+    mapping_file: data/mappings/06_murder_victim_age.yaml
+    
+
+  
+  
+
+  
+
+
+logs:
+  log_dir: logs
+
