@@ -21,3 +21,4 @@ class DataIngestion:
             processed_path=dataset_cfg.processed_path,
             mapping_file=dataset_cfg.mapping_file,
         )
+        

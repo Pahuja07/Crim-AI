@@ -3,6 +3,6 @@ Year: year
 Group_Name: crime_group
 Sub_Group_Name: crime_subgroup
 Cases_Property_Stolen: cases_stolen
-Value_of_Property_Stolen (Rs.): value_stolen
+Value_of_Property_Stolen: value_stolen
 Cases_Property_Recovered: cases_recovered
-Value_of_Property_Recovered (Rs.): value_recovered
+Value_of_Property_Recovered: value_recovered

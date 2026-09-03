@@ -1,0 +1,5 @@
+FIR-2026-001
+
+Incident report recorded on 2026-09-04.
+Reporting contact: priya.sharma@example.com
+Contact number: +91 98765 43210

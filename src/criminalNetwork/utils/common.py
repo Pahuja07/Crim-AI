@@ -87,3 +87,9 @@ def load_numpy_array_data(file_path: str) -> np.array:
     except Exception as e:
         raise CriminalNetworkException(e, sys) from e
     
+
+
+def load_graph_schema(path) -> dict:
+    with open(path, "r") as f:
+        schema = yaml.safe_load(f)
+    return schema

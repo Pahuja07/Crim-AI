@@ -2,10 +2,12 @@ fastapi
 uvicorn
 pydantic
 pydantic-settings
+pyyaml
 ##
 pypdf
 pdfplumber
 pandas
+numpy
 pytesseract
 pillow
 
@@ -38,3 +40,8 @@ tenacity
 setuptools
 
 
+sentence-transformers
+faiss-cpu
+langchain
+langchain-community
+langchain-openai

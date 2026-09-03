@@ -1,0 +1,50 @@
+entity_types:
+  Person:
+    required_properties: [name, entity_type]
+    optional_properties: [alias, age, gender, contact_number]
+
+  Location:
+    required_properties: [name, entity_type]
+    optional_properties: [address, city, pincode]
+
+  Vehicle:
+    required_properties: [name, entity_type]
+    optional_properties: [registration_number, vehicle_type, color]
+
+  Weapon:
+    required_properties: [name, entity_type]
+    optional_properties: [weapon_type, serial_number]
+
+  Organization:
+    required_properties: [name, entity_type]
+    optional_properties: [org_type, registration_number]
+
+relationship_types:
+  KNOWS:
+    valid_pairs:
+      - [Person, Person]
+
+  OWNS:
+    valid_pairs:
+      - [Person, Vehicle]
+      - [Person, Weapon]
+      - [Organization, Vehicle]
+
+  INVOLVED_IN:
+    valid_pairs:
+      - [Person, Person]
+      - [Person, Organization]
+
+  LOCATED_AT:
+    valid_pairs:
+      - [Person, Location]
+      - [Vehicle, Location]
+      - [Organization, Location]
+
+  ASSOCIATED_WITH:
+    valid_pairs:
+      - [Person, Organization]
+      - [Person, Person]
+
+  RELATED_TO:
+    valid_pairs: []   # fallback type — koi bhi pair allowed

@@ -1,22 +1,22 @@
 import sys
 from src.criminalNetwork.config.configuration import ConfigurationManager
-from src.criminalNetwork.components.rag_pipeline import RAGPipeline
+from src.criminalNetwork.components.graph_analytics import GraphAnalytics
 from src.criminalNetwork.utils.logger import logger
 from src.criminalNetwork.utils.exception import CriminalNetworkException
 
-STAGE_NAME = "RAG Indexing Stage"
+STAGE_NAME = "Graph Analytics Stage"
 
 
-class RAGIndexingPipeline:
+class GraphAnalyticsPipeline:
     def __init__(self):
         pass
 
     def main(self):
         try:
             config = ConfigurationManager()
-            rag_pipeline_config = config.get_rag_pipeline_config()
-            rag_pipeline = RAGPipeline(config=rag_pipeline_config)
-            rag_pipeline.run()
+            graph_analytics_config = config.get_graph_analytics_config()
+            graph_analytics = GraphAnalytics(config=graph_analytics_config)
+            graph_analytics.run()
         except Exception as e:
             raise CriminalNetworkException(e, sys)
 
@@ -24,7 +24,7 @@ class RAGIndexingPipeline:
 if __name__ == "__main__":
     try:
         logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
-        obj = RAGIndexingPipeline()
+        obj = GraphAnalyticsPipeline()
         obj.main()
         logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
     except Exception as e:

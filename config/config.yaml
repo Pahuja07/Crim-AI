@@ -16,7 +16,7 @@ datasets:
     mapping_file: config/mappings/02_Victims_of_rape.yaml
   
   trail_mapping:
-    raw_path: data/raw/03_trial_mapping.csv
+    raw_path: data/raw/03_trail_mapping.csv
     processed_path: data/processed/03_trail_mapping.csv
     mapping_file: config/mappings/03_trial_mapping.yaml
   
@@ -26,20 +26,84 @@ datasets:
     mapping_file: config/mappings/04_auto_theft.yaml
   
   serious_fraud:
-    raw_path: data/raw/05_serious_fraus.csv
+    raw_path: data/raw/05_serious_fraud.csv
     processed_path: data/processed/05_serious_fraud.csv
-    mapping_file: data/mappings/05_serious_fraud.yaml
+    mapping_file: config/mappings/05_serious_fraud.yaml
 
   murder_victim:
     raw_path: data/raw/06_murder_victim.csv
     processed_path: data/processed/06_murder_victim.csv
-    mapping_file: data/mappings/06_murder_victim_age.yaml
+    mapping_file: config/mappings/06_murder_victim_age.yaml
     
 
   
+entity_extraction: 
+  root_dir: artifacts/entity_extraction
+  output_dir: artifacts/entity_extraction/entities
+
+case_upload:
+  input_dir: data/cases/incoming
+  upload_dir: artifacts/case_upload/files
+  manifest_path: artifacts/case_upload/cases_manifest.json
+
+case_extraction:
+  output_dir: artifacts/case_extraction
+  common_entities_path: artifacts/case_extraction/common_entities.csv
   
+relationship_extraction:
+  common_entities_path: artifacts/case_extraction/common_entities.csv
+  relationship_mapping_file: config/mappings/07_relationship.yaml
+  output_path: artifacts/case_extraction/relationships.csv
+
 
   
+entity_resolution:
+  root_dir: artifacts/entity_resolution
+  input_entities_file: artifacts/case_extraction/common_entities.csv
+  input_relationships_file: artifacts/case_extraction/relationships.csv
+  resolved_entities_file: artifacts/entity_resolution/resolved_entities.csv
+  resolved_relationships_file: artifacts/entity_resolution/resolved_relationships.csv
+  entity_mapping_file: artifacts/entity_resolution/entity_id_mapping.csv
+  fuzzy_threshold: 85
+
+graph_builder:
+  root_dir: artifacts/graph_builder
+  entity_mapping_file: artifacts/entity_resolution/entity_id_mapping.csv
+  resolved_entities_file: artifacts/entity_resolution/resolved_entities.csv
+  resolved_relationships_file: artifacts/entity_resolution/resolved_relationships.csv
+  graph_build_log_file: artifacts/graph_builder/graph_build_log.csv
+  graph_schema_file: schema/graph_schema.yaml
+
+graph_analytics:
+  root_dir: artifacts/graph_analytics
+  centrality_output_file: artifacts/graph_analytics/centrality_scores.csv
+  community_output_file: artifacts/graph_analytics/community_clusters.csv
+  top_n_report_file: artifacts/graph_analytics/top_suspects_report.csv
+  top_n: 10
+
+evidence_integrity:
+  root_dir: artifacts/evidence_integrity
+  input_documents_dir: data/raw
+  hash_ledger_file: artifacts/evidence_integrity/evidence_hash_ledger.csv
+  verification_report_file: artifacts/evidence_integrity/verification_report.csv
+  hash_algorithm: sha256
+
+rag_pipeline:
+  root_dir: artifacts/rag_pipeline
+  input_documents_dir: data/cases/incoming
+  vector_store_dir: artifacts/rag_pipeline/vector_store
+  chunk_metadata_file: artifacts/rag_pipeline/chunk_metadata.csv
+  embedding_model_name: all-MiniLM-L6-v2
+  chunk_size: 500
+  chunk_overlap: 50
+agent:
+  vector_store_dir: artifacts/rag_pipeline/vector_store
+  embedding_model_name: all-MiniLM-L6-v2
+  top_suspects_file: artifacts/graph_analytics/top_suspects_report.csv
+  centrality_file: artifacts/graph_analytics/centrality_scores.csv
+  community_file: artifacts/graph_analytics/community_clusters.csv
+  llm_model_name: gpt-4o-mini
+  retrieval_k: 4
 
 
 logs:

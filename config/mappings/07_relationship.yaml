@@ -1,0 +1,24 @@
+relationships:
+  - source: CASE
+    relation: HAS_CRIME
+    target: CRIME
+
+  - source: CASE
+    relation: OCCURRED_IN
+    target: LOCATION
+
+  - source: CASE
+    relation: HAS_VICTIM
+    target: PERSON
+
+  - source: CASE
+    relation: INVOLVES_WEAPON
+    target: WEAPON
+
+  - source: CASE
+    relation: INVOLVES_ORG
+    target: ORGANIZATION
+
+  - source: CASE
+    relation: REPORTED_ON
+    target: DATE
