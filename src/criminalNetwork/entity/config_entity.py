@@ -7,4 +7,11 @@ class DataIngestionConfig:
     raw_path: Path
     processed_path: Path
     mapping_file: Path
-    
+
+
+@dataclass(frozen=True)
+class RelationshipExtractionConfig:
+    common_entities_path: Path
+    relationship_mapping_file: Path
+    output_path: Path
+

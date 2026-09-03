@@ -1,5 +1,5 @@
 from src.criminalNetwork.constants import CONFIG_FILE_PATH
-from src.criminalNetwork.entity.config_entity import DataIngestionConfig
+from src.criminalNetwork.entity.config_entity import DataIngestionConfig, RelationshipExtractionConfig
 from src.criminalNetwork.utils.common import read_yaml, create_directories
 
 
@@ -18,4 +18,13 @@ class DataIngestion:
             raw_path=dataset_cfg.raw_path,
             processed_path=dataset_cfg.processed_path,
             mapping_file=dataset_cfg.mapping_file,
+        )
+
+    def get_relationship_extraction_config(self) -> RelationshipExtractionConfig:
+        cfg = self.config.relationship_extraction
+
+        return RelationshipExtractionConfig(
+            common_entities_path=cfg.common_entities_path,
+            relationship_mapping_file=cfg.relationship_mapping_file,
+            output_path=cfg.output_path,
         )

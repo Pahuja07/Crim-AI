@@ -36,6 +36,11 @@ datasets:
     mapping_file: data/mappings/06_murder_victim_age.yaml
     
 
+relationship_extraction:
+  common_entities_path: artifacts/case_extraction/common_entities.csv
+  relationship_mapping_file: config/mappings/relationship_mapping.yaml
+  output_path: artifacts/case_extraction/relationships.csv
+
   
   
 
