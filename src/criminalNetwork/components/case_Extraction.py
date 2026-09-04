@@ -13,8 +13,9 @@ class CaseEntityExtraction:
     """Extracts graph-ready entities from every case registered in the upload manifest."""
 
     PATTERNS = {
+        "PERSON": r"(?im)^Person:[ \t]*([A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+)+)",
         "EMAIL": r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
-        "PHONE": r"\b(?:\+?\d[\d .()-]{7,}\d)\b",
+        "PHONE": r"\b(?!\d{4}-\d{2}-\d{2})(?:\+?\d[\d .()-]{7,}\d)\b",
         "DATE": r"\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b",
         "CASE_REFERENCE": r"\b(?:FIR|CASE|CR|REPORT)[ -]?[A-Z0-9/-]{3,}\b",
     }
@@ -44,7 +45,9 @@ class CaseEntityExtraction:
     def _extract(self, text: str, case_id: str, filename: str) -> list[dict]:
         rows = []
         for entity_type, pattern in self.PATTERNS.items():
-            for value in sorted(set(re.findall(pattern, text, flags=re.IGNORECASE))):
+            matches = re.finditer(pattern, text)
+            values = {match.group(1) if match.lastindex else match.group(0) for match in matches}
+            for value in sorted(values):
                 rows.append({
                     "case_id": case_id,
                     "entity_type": entity_type,

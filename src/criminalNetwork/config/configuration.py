@@ -200,6 +200,7 @@ class ConfigurationManager:
             neo4j_uri=os.environ["NEO4J_URI"],
             neo4j_username=os.environ["NEO4J_USERNAME"],
             neo4j_password=os.environ["NEO4J_PASSWORD"],
+            trust_self_signed_certificate=os.getenv("NEO4J_TRUST_SELF_SIGNED_CERTIFICATE", "true").lower() == "true",
             openai_api_key=os.environ["OPENAI_API_KEY"],
     )
 

@@ -69,6 +69,8 @@ relationship_types:
     valid_pairs:
       - [Person, Organization]
       - [Person, Person]
+      - [Person, EMAIL]
+      - [Person, PHONE]
 
   HAS_CRIME:
     valid_pairs:

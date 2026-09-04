@@ -113,5 +113,6 @@ class AgentConfig:
     neo4j_uri: str
     neo4j_username: str
     neo4j_password: str
+    trust_self_signed_certificate: bool
     openai_api_key: str
 

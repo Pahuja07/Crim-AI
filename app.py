@@ -8,4 +8,4 @@ answer = agent.answer_query(
     user_query="Who is priya's mobile number and give me all details about it",
     entity_focus="Priya Sharma"
 )
-print(answer)
+print(answer, flush=True)

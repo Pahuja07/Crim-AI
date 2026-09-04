@@ -11,6 +11,14 @@ relationships:
     relation: HAS_VICTIM
     target: PERSON
 
+  - source: PERSON
+    relation: ASSOCIATED_WITH
+    target: EMAIL
+
+  - source: PERSON
+    relation: ASSOCIATED_WITH
+    target: PHONE
+
   - source: CASE
     relation: INVOLVES_WEAPON
     target: WEAPON

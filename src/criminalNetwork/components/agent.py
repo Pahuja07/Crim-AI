@@ -20,8 +20,11 @@ class CriminalNetworkAgent:
             model=self.config.llm_model_name,
             api_key=self.config.openai_api_key,
         )
+        uri = self.config.neo4j_uri
+        if self.config.trust_self_signed_certificate:
+            uri = uri.replace("neo4j+s://", "neo4j+ssc://", 1).replace("bolt+s://", "bolt+ssc://", 1)
         self.driver = GraphDatabase.driver(
-            self.config.neo4j_uri,
+            uri,
             auth=(self.config.neo4j_username, self.config.neo4j_password),
         )
 
