@@ -19,6 +19,30 @@ entity_types:
     required_properties: [name, entity_type]
     optional_properties: [org_type, registration_number]
 
+  CASE:
+    required_properties: [name, entity_type]
+    optional_properties: [case_id]
+
+  CASE_REFERENCE:
+    required_properties: [name, entity_type]
+    optional_properties: []
+
+  DATE:
+    required_properties: [name, entity_type]
+    optional_properties: []
+
+  EMAIL:
+    required_properties: [name, entity_type]
+    optional_properties: []
+
+  PHONE:
+    required_properties: [name, entity_type]
+    optional_properties: []
+
+  CRIME:
+    required_properties: [name, entity_type]
+    optional_properties: []
+
 relationship_types:
   KNOWS:
     valid_pairs:
@@ -45,6 +69,30 @@ relationship_types:
     valid_pairs:
       - [Person, Organization]
       - [Person, Person]
+
+  HAS_CRIME:
+    valid_pairs:
+      - [CASE, CRIME]
+
+  OCCURRED_IN:
+    valid_pairs:
+      - [CASE, Location]
+
+  HAS_VICTIM:
+    valid_pairs:
+      - [CASE, Person]
+
+  INVOLVES_WEAPON:
+    valid_pairs:
+      - [CASE, Weapon]
+
+  INVOLVES_ORG:
+    valid_pairs:
+      - [CASE, Organization]
+
+  REPORTED_ON:
+    valid_pairs:
+      - [CASE, DATE]
 
   RELATED_TO:
     valid_pairs: []   # fallback type — koi bhi pair allowed

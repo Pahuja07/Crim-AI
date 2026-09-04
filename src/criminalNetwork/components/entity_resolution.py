@@ -10,7 +10,7 @@ from src.criminalNetwork.utils.exception import CriminalNetworkException
 class EntityResolution:
     def __init__(self, config: EntityResolutionConfig):
         self.config = config
-        self.resolved_entities = {}   # canonical_name -> {entity_id, entity_type}
+        self.resolved_entities = {}   # (canonical_name, entity_type) -> entity data
         self.entity_id_counter = 0
         self.mapping_records = []
 
@@ -31,14 +31,14 @@ class EntityResolution:
         norm_name = self._normalize(raw_name)
 
         # 1. exact match (case-insensitive)
-        for canonical, data in self.resolved_entities.items():
-            if data["entity_type"] == entity_type and self._normalize(canonical) == norm_name:
+        for (canonical, canonical_type), data in self.resolved_entities.items():
+            if canonical_type == entity_type and self._normalize(canonical) == norm_name:
                 return canonical, "exact"
 
         # 2. fuzzy match
         best_score, best_canonical = 0, None
-        for canonical, data in self.resolved_entities.items():
-            if data["entity_type"] != entity_type:
+        for (canonical, canonical_type), data in self.resolved_entities.items():
+            if canonical_type != entity_type:
                 continue
             score = int(SequenceMatcher(None, self._normalize(canonical), norm_name).ratio() * 100)
             if score > best_score:
@@ -49,8 +49,8 @@ class EntityResolution:
 
         # 3. initial/abbreviation match (Person only)
         if entity_type.lower() == "person":
-            for canonical, data in self.resolved_entities.items():
-                if data["entity_type"] == entity_type and self._initial_match(
+            for (canonical, canonical_type), data in self.resolved_entities.items():
+                if canonical_type == entity_type and self._initial_match(
                     norm_name, self._normalize(canonical)
                 ):
                     return canonical, "initial-match"
@@ -62,7 +62,7 @@ class EntityResolution:
             match, match_type = self._find_existing_match(raw_name, entity_type)
 
             if match:
-                entity_id = self.resolved_entities[match]["entity_id"]
+                entity_id = self.resolved_entities[(match, entity_type)]["entity_id"]
                 logger.info(f"Resolved '{raw_name}' -> '{match}' ({match_type}), id={entity_id}")
                 if match_type != "exact":
                     logger.warning(
@@ -72,7 +72,7 @@ class EntityResolution:
             else:
                 self.entity_id_counter += 1
                 entity_id = f"E{self.entity_id_counter:05d}"
-                self.resolved_entities[raw_name] = {"entity_id": entity_id, "entity_type": entity_type}
+                self.resolved_entities[(raw_name, entity_type)] = {"entity_id": entity_id, "entity_type": entity_type}
                 match_type = "new"
                 logger.info(f"New entity created: '{raw_name}' -> id={entity_id}")
 
@@ -90,10 +90,17 @@ class EntityResolution:
         """relationships.csv me source/target names ko resolved entity_id se replace karta hai."""
         try:
             rel_df = pd.read_csv(self.config.input_relationships_file)
-            name_to_id = dict(zip(mapping_df["raw_name"], mapping_df["resolved_entity_id"]))
+            name_type_to_id = {
+                (row.raw_name, row.entity_type): row.resolved_entity_id
+                for row in mapping_df.itertuples(index=False)
+            }
 
-            rel_df["source_entity_id"] = rel_df["source_entity"].map(name_to_id)
-            rel_df["target_entity_id"] = rel_df["target_entity"].map(name_to_id)
+            rel_df["source_entity_id"] = rel_df.apply(
+                lambda row: name_type_to_id.get((row["source_entity"], row["source_type"])), axis=1
+            )
+            rel_df["target_entity_id"] = rel_df.apply(
+                lambda row: name_type_to_id.get((row["target_entity"], row["target_type"])), axis=1
+            )
 
             unmatched = rel_df[rel_df["source_entity_id"].isna() | rel_df["target_entity_id"].isna()]
             if not unmatched.empty:
@@ -114,6 +121,15 @@ class EntityResolution:
             for _, row in entities_df.iterrows():
                 self.resolve_entity(row[entity_name_column], row["entity_type"])
 
+            # Relationship rules can introduce endpoints such as CASE that do
+            # not appear in the extracted-entity table. Resolve them too so a
+            # valid graph edge is never dropped for a missing ID.
+            relationships_df = pd.read_csv(self.config.input_relationships_file)
+            for _, row in relationships_df.iterrows():
+                for name_column, type_column in (("source_entity", "source_type"), ("target_entity", "target_type")):
+                    if pd.notna(row[name_column]) and pd.notna(row[type_column]):
+                        self.resolve_entity(str(row[name_column]), str(row[type_column]))
+
             mapping_df = pd.DataFrame(
                 self.mapping_records,
                 columns=["raw_name", "entity_type", "resolved_entity_id", "match_type"],
@@ -123,8 +139,8 @@ class EntityResolution:
 
             resolved_df = pd.DataFrame(
                 [
-                    {"entity_id": v["entity_id"], "canonical_name": k, "entity_type": v["entity_type"]}
-                    for k, v in self.resolved_entities.items()
+                    {"entity_id": v["entity_id"], "canonical_name": canonical_name, "entity_type": entity_type}
+                    for (canonical_name, entity_type), v in self.resolved_entities.items()
                 ],
                 columns=["entity_id", "canonical_name", "entity_type"],
             )

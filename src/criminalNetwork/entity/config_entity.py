@@ -8,6 +8,7 @@ class DataIngestionConfig:
     processed_path: Path
     mapping_file: Path
 
+
 @dataclass(frozen=True)
 class DataPreprocessingConfig:
     root_dir: Path
@@ -66,6 +67,8 @@ class GraphBuilderConfig:
     neo4j_uri: str
     neo4j_username: str
     neo4j_password: str
+    neo4j_database: str | None
+    trust_self_signed_certificate: bool
 
 @dataclass(frozen=True)
 class GraphAnalyticsConfig:
@@ -77,6 +80,8 @@ class GraphAnalyticsConfig:
     neo4j_uri: str
     neo4j_username: str
     neo4j_password: str
+    neo4j_database: str | None
+    trust_self_signed_certificate: bool
 
 
 @dataclass(frozen=True)
@@ -109,3 +114,4 @@ class AgentConfig:
     neo4j_username: str
     neo4j_password: str
     openai_api_key: str
+

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from src.criminalNetwork.constants import CONFIG_FILE_PATH
+
 from src.criminalNetwork.entity.config_entity import (
     DataIngestionConfig,
     DataPreprocessingConfig,
@@ -10,6 +11,9 @@ from src.criminalNetwork.entity.config_entity import (
     , CaseUploadConfig, CaseExtractionConfig, RelationshipExtractionConfig, EntityResolutionConfig,
     GraphBuilderConfig, GraphAnalyticsConfig, EvidenceIntegrityConfig,RAGPipelineConfig,AgentConfig
 )
+
+from src.criminalNetwork.entity.config_entity import DataIngestionConfig, RelationshipExtractionConfig
+
 from src.criminalNetwork.utils.common import read_yaml, create_directories
 
 import os
@@ -34,6 +38,7 @@ class ConfigurationManager:
         create_directories(self._resolve_path(self.config["data_ingestion"]["processed_data_dir"]))
 
         return DataIngestionConfig(
+
             root_dir=self._resolve_path(self.config["data_ingestion"]["raw_data_dir"]),
             raw_path=self._resolve_path(dataset_cfg["raw_path"]),
             processed_path=self._resolve_path(dataset_cfg["processed_path"]),
@@ -132,6 +137,8 @@ class ConfigurationManager:
             neo4j_uri=os.environ["NEO4J_URI"],
             neo4j_username=os.environ["NEO4J_USERNAME"],
             neo4j_password=os.environ["NEO4J_PASSWORD"],
+            neo4j_database=os.getenv("NEO4J_DATABASE") or None,
+            trust_self_signed_certificate=os.getenv("NEO4J_TRUST_SELF_SIGNED_CERTIFICATE", "true").lower() == "true",
     )
     def get_graph_analytics_config(self) -> GraphAnalyticsConfig:
         config = self.config["graph_analytics"]
@@ -146,6 +153,8 @@ class ConfigurationManager:
             neo4j_uri=os.environ["NEO4J_URI"],
             neo4j_username=os.environ["NEO4J_USERNAME"],
             neo4j_password=os.environ["NEO4J_PASSWORD"],
+            neo4j_database=os.getenv("NEO4J_DATABASE") or None,
+            trust_self_signed_certificate=os.getenv("NEO4J_TRUST_SELF_SIGNED_CERTIFICATE", "true").lower() == "true",
     )
 
     def get_evidence_integrity_config(self) -> EvidenceIntegrityConfig:
@@ -193,3 +202,6 @@ class ConfigurationManager:
             neo4j_password=os.environ["NEO4J_PASSWORD"],
             openai_api_key=os.environ["OPENAI_API_KEY"],
     )
+
+
+

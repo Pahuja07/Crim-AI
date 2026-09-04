@@ -11,8 +11,14 @@ from src.criminalNetwork.utils.common import load_graph_schema
 class GraphBuilder:
     def __init__(self, config: GraphBuilderConfig):
         self.config = config
+        uri = self.config.neo4j_uri
+        if self.config.trust_self_signed_certificate:
+            # Neo4j's +ssc schemes retain TLS encryption while accepting a
+            # self-signed server certificate (common with private instances).
+            uri = uri.replace("neo4j+s://", "neo4j+ssc://", 1).replace("bolt+s://", "bolt+ssc://", 1)
+            logger.warning("Neo4j self-signed certificate trust is enabled")
         self.driver = GraphDatabase.driver(
-            self.config.neo4j_uri,
+            uri,
             auth=(self.config.neo4j_username, self.config.neo4j_password),
         )
         self.schema = load_graph_schema(self.config.graph_schema_file)
@@ -27,14 +33,14 @@ class GraphBuilder:
 
     def _create_constraints(self):
         try:
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 session.run(
                     "CREATE CONSTRAINT entity_id_unique IF NOT EXISTS "
                     "FOR (e:Entity) REQUIRE e.entity_id IS UNIQUE"
                 )
             logger.info("Constraint on Entity.entity_id ensured")
         except Exception as e:
-            raise CustomException(e, sys)
+            raise CriminalNetworkException(e, sys) from e
 
     @staticmethod
     def _sanitize_label(entity_type: str) -> str:
@@ -87,7 +93,7 @@ class GraphBuilder:
     def build_nodes(self):
         try:
             entities_df = pd.read_csv(self.config.resolved_entities_file)
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 for _, row in entities_df.iterrows():
                     validated_type = self._validate_entity_type(row["entity_type"])
                     self.entity_type_lookup[row["entity_id"]] = validated_type
@@ -107,7 +113,7 @@ class GraphBuilder:
                     })
             logger.info(f"{len(entities_df)} nodes merged into Neo4j")
         except Exception as e:
-            raise CustomException(e, sys)
+            raise CriminalNetworkException(e, sys) from e
 
     def _merge_relationship_tx(self, tx, source_id, target_id, rel_type, properties):
         rel_label = "".join(ch for ch in str(rel_type).upper().replace(" ", "_") if ch.isalnum() or ch == "_") or "RELATED_TO"
@@ -130,10 +136,13 @@ class GraphBuilder:
             if not required_cols.issubset(rel_df.columns):
                 raise ValueError(f"resolved_relationships.csv missing columns: {required_cols}")
 
-            rel_type_col = "relationship_type" if "relationship_type" in rel_df.columns else None
+            rel_type_col = next(
+                (column for column in ("relationship_type", "relation") if column in rel_df.columns),
+                None,
+            )
             skipped, flagged = 0, 0
 
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 for _, row in rel_df.iterrows():
                     source_id, target_id = row["source_entity_id"], row["target_entity_id"]
 
@@ -178,7 +187,7 @@ class GraphBuilder:
                 logger.warning(f"{flagged} relationships flagged as schema-invalid (schema_valid=False) — manual review needed")
             logger.info(f"{len(rel_df) - skipped} relationships merged into Neo4j")
         except Exception as e:
-            raise CustomException(e, sys)
+            raise CriminalNetworkException(e, sys) from e
 
     def run(self):
         try:
@@ -193,6 +202,6 @@ class GraphBuilder:
 
             logger.info("Graph builder stage completed")
         except Exception as e:
-            raise CustomException(e, sys)
+            raise CriminalNetworkException(e, sys) from e
         finally:
             self.close()

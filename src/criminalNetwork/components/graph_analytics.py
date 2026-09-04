@@ -12,8 +12,12 @@ from src.criminalNetwork.utils.exception import CriminalNetworkException
 class GraphAnalytics:
     def __init__(self, config: GraphAnalyticsConfig):
         self.config = config
+        uri = self.config.neo4j_uri
+        if self.config.trust_self_signed_certificate:
+            uri = uri.replace("neo4j+s://", "neo4j+ssc://", 1).replace("bolt+s://", "bolt+ssc://", 1)
+            logger.warning("Neo4j self-signed certificate trust is enabled")
         self.driver = GraphDatabase.driver(
-            self.config.neo4j_uri,
+            uri,
             auth=(self.config.neo4j_username, self.config.neo4j_password),
         )
         self.graph = nx.Graph()          # undirected — centrality/community ke liye
@@ -36,7 +40,7 @@ class GraphAnalytics:
     def load_graph_from_neo4j(self):
         """Neo4j se poora graph nikal ke networkx.Graph mein load karta hai."""
         try:
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 nodes = session.execute_read(self._fetch_nodes_tx)
                 rels = session.execute_read(self._fetch_relationships_tx)
 
@@ -159,7 +163,7 @@ class GraphAnalytics:
                     community_id=int(row["community_id"]) if pd.notna(row.get("community_id")) else -1,
                 )
 
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 for _, row in merged_df.iterrows():
                     session.execute_write(_update_tx, row)
 

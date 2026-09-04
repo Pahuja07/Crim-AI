@@ -99,16 +99,6 @@ except Exception as e:
     logger.exception(e)
     raise e
 
-STAGE_NAME = "Graph Builder Stage"
-try:
-    logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
-    obj = GraphBuilderPipeline()
-    obj.main()
-    logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
-except Exception as e:
-    logger.exception(e)
-    raise e
-
 STAGE_NAME = "Graph Analytics Stage"
 try:
     logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
