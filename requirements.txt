@@ -36,6 +36,9 @@ pytest
 pytest-cov
 tenacity
 
+#---Graph analytics
+python-louvain
+
 #---Package setup
 setuptools
 
