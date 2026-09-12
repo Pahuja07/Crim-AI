@@ -10,7 +10,7 @@ pandas
 numpy
 pytesseract
 pillow
-
+pyyaml
 spacy
 transformers
 torch

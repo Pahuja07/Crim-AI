@@ -186,6 +186,11 @@ class ConfigurationManager:
             embedding_model_name=config["embedding_model_name"],
             chunk_size=config["chunk_size"],
             chunk_overlap=config["chunk_overlap"],
+            neo4j_uri=os.environ["NEO4J_URI"],
+            neo4j_username=os.environ["NEO4J_USERNAME"],
+            neo4j_password=os.environ["NEO4J_PASSWORD"],
+            neo4j_database=os.getenv("NEO4J_DATABASE") or None,
+            trust_self_signed_certificate=os.getenv("NEO4J_TRUST_SELF_SIGNED_CERTIFICATE", "false").lower() == "true",
     )
     def get_agent_config(self) -> AgentConfig:
         config = self.config["agent"]
@@ -200,6 +205,7 @@ class ConfigurationManager:
             neo4j_uri=os.environ["NEO4J_URI"],
             neo4j_username=os.environ["NEO4J_USERNAME"],
             neo4j_password=os.environ["NEO4J_PASSWORD"],
+            neo4j_database=os.getenv("NEO4J_DATABASE") or None,
             trust_self_signed_certificate=os.getenv("NEO4J_TRUST_SELF_SIGNED_CERTIFICATE", "false").lower() == "true",
             openai_api_key=os.environ["OPENAI_API_KEY"],
     )

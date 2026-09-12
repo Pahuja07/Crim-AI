@@ -101,6 +101,11 @@ class RAGPipelineConfig:
     embedding_model_name: str
     chunk_size: int
     chunk_overlap: int
+    neo4j_uri: str
+    neo4j_username: str
+    neo4j_password: str
+    neo4j_database: str | None
+    trust_self_signed_certificate: bool
 @dataclass(frozen=True)
 class AgentConfig:
     vector_store_dir: Path
@@ -113,6 +118,7 @@ class AgentConfig:
     neo4j_uri: str
     neo4j_username: str
     neo4j_password: str
+    neo4j_database: str | None
     trust_self_signed_certificate: bool
     openai_api_key: str
 

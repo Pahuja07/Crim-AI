@@ -1,11 +1,11 @@
 import sys
 import pandas as pd
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from neo4j import GraphDatabase
 
+from src.criminalNetwork.components.inlegalbert_embeddings import InLegalBERTEmbeddings
 from src.criminalNetwork.entity.config_entity import AgentConfig
 from src.criminalNetwork.utils.logger import logger
 from src.criminalNetwork.utils.exception import CriminalNetworkException
@@ -14,7 +14,7 @@ from src.criminalNetwork.utils.exception import CriminalNetworkException
 class CriminalNetworkAgent:
     def __init__(self, config: AgentConfig):
         self.config = config
-        self.embedding_model = HuggingFaceEmbeddings(model_name=self.config.embedding_model_name)
+        self.embedding_model = InLegalBERTEmbeddings(model_name=self.config.embedding_model_name)
         self.vector_store = self._load_vector_store()
         self.llm = ChatOpenAI(
             model=self.config.llm_model_name,
@@ -67,17 +67,19 @@ class CriminalNetworkAgent:
             query = (
                 "MATCH (a:Entity)-[r]-(b:Entity) "
                 "WHERE toLower(a.name) CONTAINS toLower($name) "
+                "OPTIONAL MATCH (a)-[:MENTIONED_IN]->(d:DocumentChunk) "
                 "RETURN a.name AS entity, type(r) AS relationship, b.name AS connected_to, "
-                "b.entity_type AS connected_type"
+                "b.entity_type AS connected_type, collect(DISTINCT d.source_file) AS evidence_files"
             )
-            with self.driver.session() as session:
+            with self.driver.session(database=self.config.neo4j_database) as session:
                 results = list(session.run(query, name=entity_name))
 
             if not results:
                 return f"No connections found for '{entity_name}' in the graph."
 
             lines = [
-                f"{r['entity']} --[{r['relationship']}]--> {r['connected_to']} ({r['connected_type']})"
+                f"{r['entity']} --[{r['relationship']}]--> {r['connected_to']} ({r['connected_type']}) "
+                f"[Evidence: {', '.join(file for file in r['evidence_files'] if file) or 'none'}]"
                 for r in results
             ]
             return "\n".join(lines)

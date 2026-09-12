@@ -3,10 +3,11 @@ import sys
 import pandas as pd
 
 from langchain_community.document_loaders import TextLoader
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from neo4j import GraphDatabase
 
+from src.criminalNetwork.components.inlegalbert_embeddings import InLegalBERTEmbeddings
 from src.criminalNetwork.entity.config_entity import RAGPipelineConfig
 from src.criminalNetwork.utils.logger import logger
 from src.criminalNetwork.utils.exception import CriminalNetworkException
@@ -15,7 +16,7 @@ from src.criminalNetwork.utils.exception import CriminalNetworkException
 class RAGPipeline:
     def __init__(self, config: RAGPipelineConfig):
         self.config = config
-        self.embedding_model = HuggingFaceEmbeddings(model_name=self.config.embedding_model_name)
+        self.embedding_model = InLegalBERTEmbeddings(model_name=self.config.embedding_model_name)
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.config.chunk_size,
             chunk_overlap=self.config.chunk_overlap,
@@ -58,13 +59,16 @@ class RAGPipeline:
                 logger.warning("No chunks to index — skipping vector store build")
                 return None
 
+            for i, chunk in enumerate(chunks):
+                chunk.metadata["chunk_id"] = f"{chunk.metadata.get('source_file', 'unknown')}:{i}"
+
             vector_store = FAISS.from_documents(chunks, self.embedding_model)
             vector_store.save_local(str(self.config.vector_store_dir))
             logger.info(f"Vector store saved to {self.config.vector_store_dir}")
 
             for i, chunk in enumerate(chunks):
                 self.chunk_metadata.append({
-                    "chunk_id": i,
+                    "chunk_id": chunk.metadata["chunk_id"],
                     "source_file": chunk.metadata.get("source_file"),
                     "chunk_preview": chunk.page_content[:100].replace("\n", " "),
                 })
@@ -77,6 +81,43 @@ class RAGPipeline:
         except Exception as e:
                 raise CriminalNetworkException(e, sys)
 
+    def link_chunks_to_graph(self, chunks):
+        """Merge each indexed chunk into Neo4j as evidence linked to mentioned entities."""
+        uri = self.config.neo4j_uri
+        if self.config.trust_self_signed_certificate:
+            uri = uri.replace("neo4j+s://", "neo4j+ssc://", 1).replace("bolt+s://", "bolt+ssc://", 1)
+
+        try:
+            driver = GraphDatabase.driver(uri, auth=(self.config.neo4j_username, self.config.neo4j_password))
+            query = """
+            MERGE (d:DocumentChunk {chunk_id: $chunk_id})
+            SET d.source_file = $source_file, d.preview = $preview
+            WITH d
+            MATCH (e:Entity)
+            WHERE size(e.name) >= 3 AND toLower($chunk_text) CONTAINS toLower(e.name)
+            MERGE (e)-[:MENTIONED_IN]->(d)
+            RETURN count(e) AS linked_entities
+            """
+            with driver.session(database=self.config.neo4j_database) as session:
+                session.run(
+                    "CREATE CONSTRAINT document_chunk_id_unique IF NOT EXISTS "
+                    "FOR (d:DocumentChunk) REQUIRE d.chunk_id IS UNIQUE"
+                )
+                linked_count = 0
+                for chunk in chunks:
+                    result = session.run(
+                        query,
+                        chunk_id=chunk.metadata["chunk_id"],
+                        source_file=chunk.metadata.get("source_file", "unknown"),
+                        preview=chunk.page_content[:500],
+                        chunk_text=chunk.page_content,
+                    ).single()
+                    linked_count += result["linked_entities"] if result else 0
+            driver.close()
+            logger.info(f"Linked {linked_count} entity-to-document evidence edges in Neo4j")
+        except Exception as e:
+            raise CriminalNetworkException(e, sys) from e
+
     def run(self):
         try:
             logger.info("Starting RAG pipeline stage (indexing)")
@@ -87,7 +128,9 @@ class RAGPipeline:
                 return
 
             chunks = self.split_documents(documents)
-            self.build_vector_store(chunks)
+            vector_store = self.build_vector_store(chunks)
+            if vector_store is not None:
+                self.link_chunks_to_graph(chunks)
 
             logger.info("RAG pipeline stage (indexing) completed")
         except Exception as e:

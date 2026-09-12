@@ -94,12 +94,12 @@ rag_pipeline:
   input_documents_dir: data/cases/incoming
   vector_store_dir: artifacts/rag_pipeline/vector_store
   chunk_metadata_file: artifacts/rag_pipeline/chunk_metadata.csv
-  embedding_model_name: all-MiniLM-L6-v2
+  embedding_model_name: law-ai/InLegalBERT
   chunk_size: 500
   chunk_overlap: 50
 agent:
   vector_store_dir: artifacts/rag_pipeline/vector_store
-  embedding_model_name: all-MiniLM-L6-v2
+  embedding_model_name: law-ai/InLegalBERT
   top_suspects_file: artifacts/graph_analytics/top_suspects_report.csv
   centrality_file: artifacts/graph_analytics/centrality_scores.csv
   community_file: artifacts/graph_analytics/community_clusters.csv

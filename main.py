@@ -11,7 +11,7 @@ from src.criminalNetwork.pipeline.stage_06_4_entity_resolution import EntityReso
 from src.criminalNetwork.pipeline.stage_07_05_graph_analytics import GraphAnalyticsPipeline
 from src.criminalNetwork.pipeline.stage_09_evidence_hash import EvidenceIntegrityPipeline
 from src.criminalNetwork.pipeline.stage_07_rag_setup import RAGIndexingPipeline
-# ---------------- Stage 01: Data Ingestion ----------------
+
 STAGE_NAME = "Data Ingestion Stage"
 try:
     logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
@@ -23,7 +23,6 @@ except Exception as e:
     raise e
 
 
-# ---------------- Stage 02: Data Preprocessing ----------------
 STAGE_NAME = "Data Preprocessing Stage"
 try:
     logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
@@ -46,7 +45,6 @@ except Exception as e:
     raise e
 
 
-# ---------------- Stage 04: Case Upload ----------------
 STAGE_NAME = "Case Upload Stage"
 try:
     logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
@@ -58,7 +56,7 @@ except Exception as e:
     raise e
 
 
-# ---------------- Stage 05: Case Entity Extraction ----------------
+
 STAGE_NAME = "Case Entity Extraction Stage"
 try:
     logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
